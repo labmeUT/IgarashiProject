@@ -1,0 +1,37 @@
+<launch>
+     <!-- Run the rplidar node  -->
+    <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+        <param name="serial_port"         type="string" value="/dev/serial/by-path/platform-3f980000.usb-usb-0:1.4:1.0-port0"/>
+        <param name="serial_baudrate"     type="int"    value="115200"/>
+        <param name="frame_id"            type="string" value="laser"/>
+        <param name="inverted"            type="bool"   value="false"/>
+        <param name="angle_compensate"    type="bool"   value="true"/>
+    </node>
+  
+    <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_scan_broadcaster" args="0 0 0 0 0 0 base_link scan 100"/> -->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_scan_broadcaster" args="0.15 0 0 0 0 0 base_link laser 100"/>
+  
+    <!-- Run map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find create2_navigation)/maps/7a_3f.yaml"/>
+
+    <!-- Run AMCL -->
+    <include file="$(find create2_navigation)/launch/amcl.launch">
+        <arg name="initial_pose_x"  value="0"/>
+        <arg name="initial_pose_y"  value="0"/>
+        <arg name="initial_pose_a"  value="0"/>
+        <arg name="scan_topic"      value="/scan"/>
+        <arg name="odom_frame_id"   value="odom"/>
+        <arg name="base_frame_id"   value="base_link"/>
+        <arg name="global_frame_id" value="map"/>
+    </include>
+
+    <!-- run move_base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find create2_navigation)/configs_map/create2_costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find create2_navigation)/configs_map/create2_costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find create2_navigation)/configs_map/create2_local_costmap_param.yaml" command="load" />
+        <rosparam file="$(find create2_navigation)/configs_map/create2_global_costmap_param.yaml" command="load" />
+        <rosparam file="$(find create2_navigation)/configs_map/create2_base_local_planner_params.yaml" command="load" />
+    </node>
+</launch>
+

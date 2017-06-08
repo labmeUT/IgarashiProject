@@ -1,0 +1,14 @@
+<launch>
+
+    <node pkg="tf" type="static_transform_publisher" name="base_to_map" args="0 0 0 0 0 0 /base_link /map 100"/>
+
+    <!-- run move_base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find create2_navigation)/configs/create2_costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find create2_navigation)/configs/create2_costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find create2_navigation)/configs/create2_local_costmap_param.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find create2_navigation)/configs/create2_global_costmap_param.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find create2_navigation)/configs/create2_base_local_planner_params.yaml" command="load" />
+    </node>
+</launch>
+

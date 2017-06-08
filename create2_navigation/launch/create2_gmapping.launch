@@ -1,0 +1,71 @@
+<launch>
+    <!-- Run the robot  -->
+    <arg name="config" default="$(find create2_navigation)/config/create2_params.yaml" />
+    <arg name="desc" default="true" />
+
+    <node name="ca_driver" pkg="ca_driver" type="ca_driver" output="screen">
+        <rosparam command="load" file="$(arg config)" />
+        <param name="robot_model" value="CREATE_2" />
+    </node>
+
+    <!-- Robot description -->
+    <include if="$(arg desc)" file="$(find ca_description)/launch/create_2.launch" />
+  
+    <!-- Run the rplidar node  -->
+    <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+        <param name="serial_port"         type="string" value="/dev/serial/by-path/platform-3f980000.usb-usb-0:1.4:1.0-port0"/>
+        <param name="serial_baudrate"     type="int"    value="115200"/>
+        <param name="frame_id"            type="string" value="laser"/>
+        <param name="inverted"            type="bool"   value="false"/>
+        <param name="angle_compensate"    type="bool"   value="true"/>
+    </node>
+  
+    <!-- static transform base_link to laser-->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_scan_broadcaster" args="0.15 0 0 0 0 0 base_link laser 100"/>
+
+    <!-- run the slam with gmapping-->
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+        <!--<remap from="scan" to="base_scan"/> -->
+        <param name="odom_frame" value="odom"/>
+        <param name="map_update_interval" value="2.0"/>
+	
+	<!-- non-default settings -->
+        <param name="maxUrange" value="5.5"/>
+        <param name="maxRange" value="5.5"/>
+        <param name="minimumScore" value="50"/>
+        <param name="linearUpdate" value="0.2"/>
+        <param name="angularUpdate" value="0.25"/>
+        <param name="temporalUpdate" value="0.50"/>
+        <param name="delta" value="0.025"/>
+	<!-- end non-default settings -->
+
+        <param name="sigma" value="0.05"/>
+        <param name="kernelSize" value="1"/>
+        <param name="lstep" value="0.05"/>
+        <param name="astep" value="0.05"/>
+        <param name="iterations" value="5"/>
+        <param name="lsigma" value="0.075"/>
+        <param name="ogain" value="3.0"/>
+        <param name="lskip" value="0"/>
+        <param name="srr" value="0.01"/>
+        <param name="srt" value="0.02"/>
+        <param name="str" value="0.01"/>
+        <param name="stt" value="0.02"/>
+        <!-- <param name="linearUpdate" value="0.25"/>   -->  
+
+        <!-- <param name="angularUpdate" value="0.262"/> -->  
+	
+        <!-- <param name="temporalUpdate" value="-1.0"/> -->
+        <param name="resampleThreshold" value="0.5"/>
+        <param name="particles" value="300"/>
+        <param name="xmin" value="-50.0"/>
+        <param name="ymin" value="-50.0"/>
+        <param name="xmax" value="50.0"/>
+        <param name="ymax" value="50.0"/>
+        <!-- <param name="delta" value="0.05"/> -->
+        <param name="llsamplerange" value="0.01"/>
+        <param name="llsamplestep" value="0.01"/>
+        <param name="lasamplerange" value="0.005"/>
+        <param name="lasamplestep" value="0.005"/>
+    </node>
+</launch>
