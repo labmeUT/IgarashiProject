@@ -1,0 +1,115 @@
+<launch>
+
+<!-- Run Bosch BNO055 IMU -->
+<arg name="bosch_config_file" default="$(find bosch_imu_driver)/config/imu_bosch_test.yaml"/> 
+<node pkg="bosch_imu_driver" type="bosch_imu_node.py" name="bosch_imu_node" output="screen">
+    <rosparam file="$(arg bosch_config_file)" command="load"/>
+</node>
+<!-- IMU Bosh transformation publisher -->
+<node name="base_link_to_imu_bosch" pkg="tf2_ros" type="static_transform_publisher" args="0.0 0.0 0.0 0.0 0.0 1.0 base_link imu_bosch_link" >
+</node>
+
+<!-- Run Ublox GNSS -->
+<node pkg="receive_ublox" type="receive_ublox" name="receive_ublox" output="screen">
+    <param name="ublox_port" type="string" value="/dev/serial/by-path/platform-3f980000.usb-usb-0:1.5:1.0"/>
+    <remap from="/gps/data" to="/fix" />
+</node>
+<!-- Ublox GNSS transformation publisher-->
+<node name="bl_gps" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 1 base_link gps" />
+
+<node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true" output="screen">
+  <remap from="/gps/fix" to="/fix" />
+  <param name="magnetic_declination_radians" value="0"/>
+  <param name="yaw_offset" value="0"/>
+  <param name="zero_altitude" value="false"/>
+  <param name="publish_filtered_gps" value="true"/>
+  <param name="broadcast_utm_transform" value="true"/>
+  <param name="wait_for_datum" value="false"/>
+  <remap from="/odometry/filtered" to="/odometry/filtered/global" />
+</node>
+
+<node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_local" clear_params="true" output="screen">
+  <param name="frequency" value="20"/>
+  <param name="sensor_timeout" value="0.1"/>
+  <param name="imu0" value="/imu/data"/>
+  <param name="odom0" value="/odometry/gps"/>
+
+  <param name="map_frame" value="map"/>
+  <param name="odom_frame" value="odom"/>
+  <param name="base_link_frame" value="base_link"/>
+  <param name="world_frame" value="odom"/>
+
+  <!-- IMU data -->
+  <rosparam param="imu0_config">[false, false, false,
+                                 false, false, true,
+                                 false, false, false,
+                                 false, false, false,
+                                 false, false, false]</rosparam>
+
+                                 <!-- x, y, z position -->
+                                 <!-- roll, pitch, yaw angles-->
+                                 <!-- x/y/z velocity -->
+                                 <!-- roll/pitch/yaw velocity -->
+                                 <!-- x, y, z accel -->
+
+  <!-- GPS data -->
+  <rosparam param="odom0_config">[true, true, false,
+                                  false, false, false,
+                                  false, false, false,
+                                  false, false, false,
+                                  false, false, false]</rosparam>
+
+  <param name="imu0_differential" value="false"/>
+  <param name="odom0_differential" value="false"/>
+
+  <param name="debug"           value="false"/>
+  <param name="debug_out_file"  value="$(env HOME)/debug_ekf_localization.txt"/>
+  <remap from="/odometry/filtered" to="/odometry/filtered/local" />
+
+</node>
+
+<node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_global" clear_params="true" output="screen">
+  <param name="frequency" value="20"/>
+  <param name="sensor_timeout" value="0.1"/>
+  <param name="imu0" value="/imu/data"/>
+  <param name="odom0" value="/odometry/gps"/>
+
+  <param name="map_frame" value="map"/>
+  <param name="odom_frame" value="odom"/>
+  <param name="base_link_frame" value="base_link"/>
+  <param name="world_frame" value="map"/>
+
+  <!-- IMU data -->
+  <rosparam param="imu0_config">[false, false, false,
+                                 false, false, true,
+                                 false, false, false,
+                                 false, false, false,
+                                 false, false, false]</rosparam>
+
+                                 <!-- x, y, z position -->
+                                 <!-- roll, pitch, yaw angles-->
+                                 <!-- x/y/z velocity -->
+                                 <!-- roll/pitch/yaw velocity -->
+                                 <!-- x, y, z accel -->
+
+  <!-- GPS data -->
+  <rosparam param="odom0_config">[true, true, false,
+                                  false, false, false,
+                                  false, false, false,
+                                  false, false, false,
+                                  false, false, false]</rosparam>
+
+  <param name="imu0_differential" value="false"/>
+  <param name="odom0_differential" value="false"/>
+
+  <param name="debug"           value="false"/>
+  <param name="debug_out_file"  value="$(env HOME)/debug_ekf_localization.txt"/>
+  <remap from="/odometry/filtered" to="/odometry/filtered/global" />
+
+</node>
+
+<node name="odom_to_base_link" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 1 base_link /odom" />
+
+</launch>
+
+
