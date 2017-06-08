@@ -1,0 +1,13 @@
+This is a ROS driver for U-blox GPS receivers.
+
+Wiki page: http://wiki.ros.org/receive_ublox
+
+How to use:
+
+  (1) Clone this driver from github to a ROS workspace. Go to the cloned folder and use “catkin_make” to build it.
+  
+  (2) Set the "ublox_port" parameter in the /launch/receive_ublox.launch file, the default is /dev/ttyACM0. Roslaunch using the launch file, the driver will publish sensor_msgs/NavSatFix typed messages named /gps/data.
+
+Additional notes:
+
+* Your account might require permissions to be able to communicate with the device (through USB)

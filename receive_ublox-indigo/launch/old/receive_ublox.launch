@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="receive_ublox" type="receive_ublox" name="receive_ublox" output="screen"/>
+        <param name="ublox_port" type="string" value="/dev/ttyACM0"/>
+</launch>

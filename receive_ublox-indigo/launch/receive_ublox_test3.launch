@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="receive_ublox" type="receive_ublox" name="receive_ublox" output="screen">
+    <param name="ublox_port" type="string" value="/dev/serial/by-path/platform-3f980000.usb-usb-0:1.5:1.0"/>
+    <remap from="/gps/data" to="/fix" />
+  </node>
+
+</launch>

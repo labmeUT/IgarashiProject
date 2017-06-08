@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="receive_ublox" type="receive_ublox" name="receive_ublox" output="screen">
+    <param name="ublox_port" type="string" value="/dev/ttyACM0"/>
+    <remap from="/gps/data" to="/fix" />
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_gps" args="0 0 0 0 0 0 0 /base_link /gps 20" />
+</launch>
