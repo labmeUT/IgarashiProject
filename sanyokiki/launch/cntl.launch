@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="sanyokiki" type="sanyo_cntl.py" name="sanyo_controller" output="screen">
+  </node>
+</launch>
