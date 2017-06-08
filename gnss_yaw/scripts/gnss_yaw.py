@@ -48,6 +48,8 @@ def gnss_yaw(utm):
             
             pub_yaw.publish(imu_msg)
             #e = euler_from_quaternion((q[0],q[1],q[2],q[3]))
+            #print x
+            #print y
             print yaw/np.pi *180
 
 def shutdown():
