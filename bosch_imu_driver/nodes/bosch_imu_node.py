@@ -216,7 +216,7 @@ if __name__ == '__main__':
     if not(write_to_dev(ser, AXIS_MAP_SIGN, 1, 0x06)):
         rospy.logerr("Unable to set IMU axis signs.")
 
-    if not(write_to_dev(ser, OPER_MODE, 1, OPER_MODE_NDOF)):
+    if not(write_to_dev(ser, OPER_MODE, 1, OPER_MODE_NDOF_FMC_OFF)):
         rospy.logerr("Unable to set IMU operation mode into operation mode.")
 
     rospy.loginfo("Bosch BNO055 IMU configuration complete.")
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(frequency)
 
     # Factors for unit conversions
-    acc_fact = 1000.0
+    acc_fact = 100.0
     mag_fact = 16.0
     gyr_fact = 900.0
     quat_fact = 16384    # 1 = 2^14 LSB
